@@ -633,6 +633,7 @@
       .hero-title { letter-spacing: 0.04em; }
       .channel-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
       .channel-badge { margin-left: 0; }
+      .scroll-hint { display: none; }
     }
 
     /* ─────────────── TOR WARNING ─────────────── */
@@ -682,6 +683,9 @@
         ↓ &nbsp;Connect with IRC client
       </a>
     </div>
+    <p style="margin-top:1rem; font-family:'Share Tech Mono',monospace; font-size:0.7rem; letter-spacing:0.15em; color:var(--muted);">
+      🧅 &nbsp;Requires <a href="https://www.torproject.org/download/" target="_blank" rel="noopener" style="color:var(--glow); text-decoration:underline;">Tor Browser</a> — .onion links only work inside Tor
+    </p>
   </div>
 
   <div class="scroll-hint">
@@ -856,19 +860,19 @@
 
   <div class="clients-grid">
     <div class="client-card">
-      <h4>WeeChat</h4>
+      <h4><a href="https://weechat.org/download/" target="_blank" rel="noopener" style="color:#c8c0a8; text-decoration:none;">WeeChat ↗</a></h4>
       <p>Terminal-based. Lightweight. Highly scriptable. Best for advanced users.</p>
     </div>
     <div class="client-card">
-      <h4>HexChat</h4>
+      <h4><a href="https://hexchat.github.io/" target="_blank" rel="noopener" style="color:#c8c0a8; text-decoration:none;">HexChat ↗</a></h4>
       <p>Graphical, easy to configure. Good Tor proxy support.</p>
     </div>
     <div class="client-card">
-      <h4>irssi</h4>
+      <h4><a href="https://irssi.org/download/" target="_blank" rel="noopener" style="color:#c8c0a8; text-decoration:none;">irssi ↗</a></h4>
       <p>Classic terminal client. Minimal and reliable.</p>
     </div>
     <div class="client-card">
-      <h4>Webclient</h4>
+      <h4><a href="https://www.torproject.org/download/" target="_blank" rel="noopener" style="color:#c8c0a8; text-decoration:none;">Webclient (Tor Browser) ↗</a></h4>
       <p>No install. Just open the .onion in Tor Browser and connect.</p>
     </div>
   </div>
