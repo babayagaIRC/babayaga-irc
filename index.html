@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BabaYaga IRC — Protect. Observe. Persist.</title>
+  <meta name="description" content="BabaYaga is a private IRC network focused on cybersecurity, Linux, privacy and technology. Accessible over Tor. No logs. Everyone welcome." />
+  <meta name="keywords" content="IRC server, BabaYaga IRC, cybersecurity IRC, Tor IRC, privacy IRC, anonymous IRC, Linux community, underground IRC" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="BabaYaga IRC — Protect. Observe. Persist." />
+  <meta property="og:description" content="A relaxed underground IRC space over Tor. Cybersecurity, Linux, privacy, technology. No logs. All welcome." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cinzel+Decorative:wght@400;700&family=Share+Tech+Mono&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black:    #050905;
+      --dark:     #0a100a;
+      --panel:    #0d140d;
+      --border:   #1a2e1a;
+      --green:    #3a7a3a;
+      --glow:     #4caf50;
+      --bright:   #7fff7f;
+      --text:     #9ab89a;
+      --muted:    #4e6a4e;
+      --gold:     #c8a84b;
+      --gold-dim: #7a6020;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+    }
+
+    /* ── Scanlines ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ─────────────── HERO ─────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('57586.jpeg');
+      background-size: cover;
+      background-position: center top;
+      filter: brightness(0.28) saturate(0.6);
+      transform: scale(1.04);
+      transition: transform 20s ease;
+    }
+
+    .hero:hover .hero-bg { transform: scale(1.0); }
+
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, transparent 30%, rgba(5,9,5,0.85) 100%),
+        linear-gradient(to bottom, rgba(5,9,5,0.2) 0%, rgba(5,9,5,0.0) 40%, rgba(5,9,5,0.7) 80%, rgba(5,9,5,1) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem;
+      animation: fadeUp 1.2s ease both;
+    }
+
+    .rune-top {
+      font-size: 2rem;
+      color: var(--green);
+      opacity: 0.6;
+      letter-spacing: 0.5em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 1.2s 0.2s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel Decorative', 'Cinzel', serif;
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #e8e0c8;
+      text-shadow:
+        0 0 40px rgba(76,175,80,0.4),
+        0 0 80px rgba(76,175,80,0.15),
+        2px 2px 0 rgba(0,0,0,0.8);
+      line-height: 1;
+      margin-bottom: 0.4em;
+      animation: fadeUp 1.2s 0.3s ease both;
+    }
+
+    .hero-bracket {
+      color: var(--glow);
+      text-shadow: 0 0 20px var(--glow);
+    }
+
+    .hero-tagline {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.75rem, 2vw, 1rem);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--glow);
+      text-shadow: 0 0 12px rgba(76,175,80,0.6);
+      margin-bottom: 2.5rem;
+      animation: fadeUp 1.2s 0.5s ease both;
+    }
+
+    .hero-quote {
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 3rem;
+      animation: fadeUp 1.2s 0.7s ease both;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 1.2s 0.9s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.8rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--green);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--glow);
+      transform: translateX(-101%);
+      transition: transform 0.3s ease;
+      z-index: -1;
+    }
+
+    .btn:hover::before { transform: translateX(0); }
+
+    .btn-primary {
+      background: rgba(76,175,80,0.12);
+      color: var(--glow);
+      border-color: var(--glow);
+      box-shadow: 0 0 20px rgba(76,175,80,0.2), inset 0 0 20px rgba(76,175,80,0.05);
+    }
+
+    .btn-primary:hover {
+      color: var(--black);
+      box-shadow: 0 0 40px rgba(76,175,80,0.5);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover {
+      color: var(--black);
+      border-color: var(--glow);
+      box-shadow: 0 0 20px rgba(76,175,80,0.2);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      opacity: 0.4;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--glow);
+      animation: fadeUp 1.2s 1.5s ease both;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--glow), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ─────────────── DIVIDERS ─────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 2rem;
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      opacity: 0.4;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--green), transparent);
+    }
+
+    .divider-rune {
+      font-size: 1.2rem;
+      color: var(--green);
+    }
+
+    /* ─────────────── SECTIONS ─────────────── */
+    section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--glow);
+      margin-bottom: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 600;
+      color: #d4cdb8;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────── ABOUT ─────────────── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .about-image {
+      position: relative;
+    }
+
+    .about-image img {
+      width: 100%;
+      max-width: 340px;
+      display: block;
+      margin: 0 auto;
+      border-radius: 50%;
+      filter: brightness(0.75) saturate(0.5) sepia(0.2);
+      border: 1px solid var(--border);
+      box-shadow:
+        0 0 60px rgba(76,175,80,0.1),
+        0 0 120px rgba(76,175,80,0.05);
+    }
+
+    .about-image::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, var(--green), transparent, var(--green), transparent);
+      animation: spin 12s linear infinite;
+      z-index: -1;
+      opacity: 0.3;
+    }
+
+    .about-text p {
+      margin-bottom: 1.2rem;
+      color: var(--text);
+    }
+
+    /* ─────────────── CONNECT ─────────────── */
+    .connect-block {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .connect-block::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--glow), transparent);
+    }
+
+    .connect-block h3 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--glow);
+      margin-bottom: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .connect-block p { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem; }
+
+    .onion-addr {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--glow);
+      background: rgba(76,175,80,0.06);
+      border: 1px solid rgba(76,175,80,0.15);
+      padding: 0.6rem 1rem;
+      margin-top: 0.75rem;
+      word-break: break-all;
+      line-height: 1.6;
+      display: block;
+      position: relative;
+    }
+
+    .onion-addr span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      margin-right: 0.5rem;
+    }
+
+    .copy-btn {
+      float: right;
+      background: none;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 0.5rem;
+    }
+
+    .copy-btn:hover {
+      background: var(--green);
+      color: var(--black);
+    }
+
+    /* ─────────────── RULES ─────────────── */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .rule-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      position: relative;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .rule-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 20px rgba(76,175,80,0.08);
+    }
+
+    .rule-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      display: block;
+      opacity: 0.7;
+    }
+
+    .rule-card h4 {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      color: #c8c0a8;
+      margin-bottom: 0.4rem;
+    }
+
+    .rule-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* ─────────────── CHANNELS ─────────────── */
+    .channels-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 1.5rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      transition: border-color 0.3s;
+    }
+
+    .channel-row:hover { border-color: var(--green); }
+
+    .channel-name {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      color: var(--glow);
+      min-width: 140px;
+    }
+
+    .channel-desc { color: var(--muted); font-size: 0.9rem; }
+
+    .channel-badge {
+      margin-left: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--green);
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    /* ─────────────── CLIENTS ─────────────── */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .client-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .client-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 15px rgba(76,175,80,0.07);
+    }
+
+    .client-card h4 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      color: #c8c0a8;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.1em;
+    }
+
+    .client-card p { font-size: 0.82rem; color: var(--muted); }
+
+    /* ─────────────── FOOTER ─────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.4rem;
+      color: #c8c0a8;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    .footer-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .footer-rune {
+      font-size: 1.8rem;
+      color: var(--green);
+      opacity: 0.3;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .footer-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      opacity: 0.5;
+    }
+
+    .nolog-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--glow);
+      border: 1px solid rgba(76,175,80,0.3);
+      padding: 0.3rem 0.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .nolog-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--glow);
+      box-shadow: 0 0 6px var(--glow);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    /* ─────────────── ANIMATIONS ─────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.1); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    @keyframes glitch {
+      0%, 95%, 100% { clip-path: none; transform: none; }
+      96% { clip-path: inset(20% 0 60% 0); transform: translateX(-4px); }
+      97% { clip-path: inset(60% 0 10% 0); transform: translateX(4px); }
+      98% { clip-path: inset(40% 0 40% 0); transform: translateX(-2px); }
+    }
+
+    .glitch { animation: glitch 8s ease-in-out infinite; }
+
+    /* ─────────────── FULL-WIDTH BANNER ─────────────── */
+    .banner-section {
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .banner-section img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
+      filter: brightness(0.35) saturate(0.5);
+    }
+
+    .banner-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(5,9,5,1) 0%, transparent 30%, transparent 70%, rgba(5,9,5,1) 100%),
+        linear-gradient(to right, rgba(5,9,5,0.6) 0%, transparent 30%, transparent 70%, rgba(5,9,5,0.6) 100%);
+    }
+
+    /* ─────────────── RESPONSIVE ─────────────── */
+    @media (max-width: 680px) {
+      .about-grid { grid-template-columns: 1fr; }
+      .about-image { display: none; }
+      .hero-title { letter-spacing: 0.04em; }
+      .channel-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .channel-badge { margin-left: 0; }
+    }
+
+    /* ─────────────── TOR WARNING ─────────────── */
+    .tor-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: rgba(76,175,80,0.04);
+      border: 1px solid rgba(76,175,80,0.15);
+      border-left: 3px solid var(--glow);
+      padding: 1rem 1.5rem;
+      margin-top: 1.5rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .tor-note strong { color: var(--glow); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-vignette"></div>
+
+  <div class="hero-content">
+    <div class="rune-top">ᚷ ᚠ ᚢ ᚦ ᚨ ᚱ</div>
+
+    <h1 class="hero-title glitch">
+      <span class="hero-bracket">[</span>B<span class="hero-bracket">]</span>aba<span class="hero-bracket">[</span>Y<span class="hero-bracket">]</span>aga
+    </h1>
+
+    <p class="hero-tagline">Protect &nbsp;·&nbsp; Observe &nbsp;·&nbsp; Persist</p>
+
+    <p class="hero-quote">
+      "In the forest, nothing is forgotten.<br />
+      In the logs, nothing escapes.<br />
+      In the shadows, we persist."
+    </p>
+
+    <div class="hero-buttons">
+      <a href="http://pzdarfnc2jtwqesyibf4shzqvuwfj7zpq7yoormvnloxbyysvwnftjyd.onion/" class="btn btn-primary">
+        ⬡ &nbsp;Enter via Webclient
+      </a>
+      <a href="#connect" class="btn btn-ghost">
+        ↓ &nbsp;Connect with IRC client
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+</header>
+
+<!-- ══════════ ABOUT ══════════ -->
+<section id="about">
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-rune">ᚷ</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-image">
+      <img src="58332.jpeg" alt="BabaYaga — the observer in the shadows" />
+    </div>
+    <div class="about-text">
+      <div class="section-label">// about the network</div>
+      <h2 class="section-title">Old internet.<br />New shadows.</h2>
+
+      <p>
+        I know IRC is niche nowadays — especially over Tor. But I miss the old internet communities,
+        so I decided to build one myself.
+      </p>
+      <p>
+        BabaYaga is a <strong style="color:#c8c0a8">relaxed underground IRC space</strong> focused around
+        cybersecurity, Linux, privacy, technology, and random discussions. The server is still small
+        and evolving, but everyone is welcome — you don't need to be an IRC expert.
+      </p>
+      <p>
+        We don't keep logs. Illegal activities, spam, or abusive behavior are not tolerated
+        and may result in kicks or bans. Users are encouraged to register their nicknames
+        to protect their identity on the network.
+      </p>
+      <p>
+        Feel free to create and manage your own channel.
+      </p>
+      <br />
+      <div class="nolog-badge">
+        <span class="nolog-dot"></span>
+        NO LOGS KEPT
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ BANNER BREAK ══════════ -->
+<div class="banner-section">
+  <img src="57587.jpeg" alt="BabaYaga IRC — Protect. Observe. Persist." />
+  <div class="banner-overlay"></div>
+</div>
+
+<!-- ══════════ CONNECT ══════════ -->
+<section id="connect">
+  <div class="section-label">// access points</div>
+  <h2 class="section-title">Enter the Forest</h2>
+  <p style="color:var(--muted); margin-bottom:2rem; font-size:0.95rem;">
+    BabaYaga is accessible exclusively over Tor. You will need the
+    <a href="https://www.torproject.org/" style="color:var(--glow)" target="_blank" rel="noopener">Tor Browser</a>
+    or a Tor-proxied IRC client.
+  </p>
+
+  <div class="connect-block">
+    <h3>⬡ &nbsp;Webclient (Browser)</h3>
+    <p>The easiest way. Open in Tor Browser — no install needed.</p>
+    <code class="onion-addr">
+      <button class="copy-btn" onclick="copyText('pzdarfnc2jtwqesyibf4shzqvuwfj7zpq7yoormvnloxbyysvwnftjyd.onion')">COPY</button>
+      <span>http://</span>pzdarfnc2jtwqesyibf4shzqvuwfj7zpq7yoormvnloxbyysvwnftjyd.onion/
+    </code>
+  </div>
+
+  <div class="connect-block">
+    <h3>⌨ &nbsp;IRC Client (WeeChat, HexChat, etc.)</h3>
+    <p>For a proper IRC experience. Configure your client to route through Tor (SOCKS5 proxy on <code style="color:var(--glow)">127.0.0.1:9050</code>), then connect to:</p>
+    <code class="onion-addr">
+      <button class="copy-btn" onclick="copyText('2k35k32nq4ic44b5l7ey6fcuxcpradjq65pqmtzel6ty5ahh35fx26id.onion')">COPY</button>
+      <span>host: </span>2k35k32nq4ic44b5l7ey6fcuxcpradjq65pqmtzel6ty5ahh35fx26id.onion
+    </code>
+    <code class="onion-addr" style="margin-top:0.5rem">
+      <span>port: </span>6667 &nbsp;&nbsp;<span style="opacity:0.5">// plaintext over Tor — the onion IS the encryption</span>
+    </code>
+  </div>
+
+  <div class="tor-note">
+    <span>🧅</span>
+    <div>
+      <strong>TOR REQUIRED</strong><br />
+      Both addresses are .onion — they only work inside the Tor network. Traffic is end-to-end encrypted
+      by Tor itself. No clearnet access is provided by design.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CHANNELS ══════════ -->
+<section id="channels">
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-rune">ᚢ</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="section-label">// channels</div>
+  <h2 class="section-title">Where the Ravens Gather</h2>
+
+  <div class="channels-list">
+    <div class="channel-row">
+      <span class="channel-name">#threshold</span>
+      <span class="channel-desc">Main channel. General talk — cybersecurity, Linux, privacy, tech, life.</span>
+      <span class="channel-badge">PRIMARY</span>
+    </div>
+    <div class="channel-row" style="opacity:0.6">
+      <span class="channel-name">+</span>
+      <span class="channel-desc" style="font-style:italic">Create your own channel. The forest has room for everyone.</span>
+      <span class="channel-badge" style="border-color:var(--muted); color:var(--muted)">OPEN</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ RULES ══════════ -->
+<section id="rules">
+  <div class="section-label">// forest rules</div>
+  <h2 class="section-title">The Code of the Forest</h2>
+
+  <div class="rules-grid">
+    <div class="rule-card">
+      <span class="rule-icon">👁</span>
+      <h4>Respect Everyone</h4>
+      <p>Treat all inhabitants with respect. This forest belongs to everyone.</p>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">🔒</span>
+      <h4>Think Before You Share</h4>
+      <p>Be mindful of what you reveal — about yourself and others.</p>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">🛡</span>
+      <h4>Security Above All</h4>
+      <p>Protect yourself, protect the network. OpSec is not optional.</p>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">🤝</span>
+      <h4>Help and Teach</h4>
+      <p>Share knowledge freely. The old internet ran on this principle.</p>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">⚡</span>
+      <h4>Curiosity is Power</h4>
+      <p>Ask questions. Explore. Break things to learn how they work.</p>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">⛔</span>
+      <h4>No Illegal Activity</h4>
+      <p>Spam, abuse, or illegal conduct will result in immediate removal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CLIENTS ══════════ -->
+<section id="clients">
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-rune">ᚦ</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="section-label">// recommended clients</div>
+  <h2 class="section-title">Choose Your Vessel</h2>
+
+  <div class="clients-grid">
+    <div class="client-card">
+      <h4>WeeChat</h4>
+      <p>Terminal-based. Lightweight. Highly scriptable. Best for advanced users.</p>
+    </div>
+    <div class="client-card">
+      <h4>HexChat</h4>
+      <p>Graphical, easy to configure. Good Tor proxy support.</p>
+    </div>
+    <div class="client-card">
+      <h4>irssi</h4>
+      <p>Classic terminal client. Minimal and reliable.</p>
+    </div>
+    <div class="client-card">
+      <h4>Webclient</h4>
+      <p>No install. Just open the .onion in Tor Browser and connect.</p>
+    </div>
+  </div>
+
+  <div class="tor-note" style="margin-top:2rem">
+    <span>📖</span>
+    <div>
+      <strong>CONFIGURING TOR PROXY</strong><br />
+      Set your IRC client to use a SOCKS5 proxy at <code style="color:var(--glow)">127.0.0.1</code> port <code style="color:var(--glow)">9050</code>
+      (Tor daemon default). Then connect directly to the .onion address. Most IRC clients support this natively.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <span class="footer-rune">ᚷ ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ</span>
+  <div class="footer-title">[B]aba[Y]aga</div>
+  <div class="footer-sub">Protect &nbsp;·&nbsp; Observe &nbsp;·&nbsp; Persist</div>
+  <p class="footer-note">"We don't hack systems. We protect them."</p>
+  <br />
+  <p class="footer-note" style="opacity:0.3; font-size:0.75rem;">
+    Running InspIRCd · Anope Services · Tor Hidden Service · No logs kept
+  </p>
+</footer>
+
+<script>
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const btns = document.querySelectorAll('.copy-btn');
+      btns.forEach(b => {
+        if (b.onclick && b.onclick.toString().includes(text.slice(0,10))) {
+          const orig = b.textContent;
+          b.textContent = 'COPIED';
+          b.style.background = 'var(--glow)';
+          b.style.color = 'var(--black)';
+          setTimeout(() => {
+            b.textContent = orig;
+            b.style.background = '';
+            b.style.color = '';
+          }, 1500);
+        }
+      });
+    });
+  }
+
+  // Animate elements on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.connect-block, .rule-card, .client-card, .channel-row').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
