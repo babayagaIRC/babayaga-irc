@@ -782,6 +782,25 @@
       by Tor itself. No clearnet access is provided by design.
     </div>
   </div>
+
+  <div class="connect-block" style="margin-top:1.5rem">
+    <h3>🔑 &nbsp;Verify These Are the Real Addresses</h3>
+    <p>
+      Anyone can claim an .onion. To prove these addresses are ours, they're listed in a statement
+      signed with the operator's PGP key.
+    </p>
+    <p style="margin-top:0.5rem;">
+      <a href="babayaga_ownership_statement.txt.asc" style="color:var(--glow)">signed statement</a>
+      &nbsp;·&nbsp;
+      <a href="pubkey.asc" style="color:var(--glow)">public key</a>
+    </p>
+    <code class="onion-addr" style="margin-top:0.75rem">
+      <span style="opacity:0.6">fingerprint: </span>682A FE61 7D56 941D 99D4 A65B C6B7 1D7E A2D3 3241
+    </code>
+    <p style="margin-top:0.5rem; font-family:'Share Tech Mono',monospace; font-size:0.8rem; opacity:0.6;">
+      gpg --import pubkey.asc &amp;&amp; gpg --verify babayaga_ownership_statement.txt.asc
+    </p>
+  </div>
 </section>
 
 <!-- ══════════ CHANNELS ══════════ -->
